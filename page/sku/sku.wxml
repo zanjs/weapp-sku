@@ -4,7 +4,8 @@
         {{item.TypeName}} {{index}}
         <view class="skus-wrap">
           <block wx:for="{{item.SkuProperties}}" wx:for-item="y" wx:key="PropId"  wx:for-index="idy">
-              <button data-id="{{y.PropId}}" bindtap="skuClick">{{y.PropertieName}}</button>
+              <button wx:if="{{y.ison}}" class="ison" data-id="{{y.PropId}}" data-x="{{index}}" data-y="{{idy}}" bindtap="skuClick">{{y.PropertieName}}</button>
+              <button wx:if="{{!y.ison}}"data-id="{{y.PropId}}" data-x="{{index}}" data-y="{{idy}}" bindtap="skuClick">{{y.PropertieName}}</button>
           </block>
         </view>
       </view>

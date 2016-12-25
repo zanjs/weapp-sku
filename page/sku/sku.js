@@ -139,60 +139,128 @@ Page({
     // 保存最后的组合结果信息
     SKUResult: {}
   },
+  processSkuClasses(SkuClasses){
+    let vm = this
+    let list = SkuClasses
+    let leng = list.length
+
+    for(var i=0;i<leng;i++){
+      let item = list[i]
+      item.SkuProperties = vm.processSkuTags(item.SkuProperties)
+     }
+
+     return list
+  },
+  processSkuTags(tags){
+    let list = tags
+    let leng = list.length
+
+    for(var i=0;i<leng;i++){
+      let item = list[i]
+      item.ison = false
+  
+     }
+
+     return list
+  },
+  saveSKUResult(SKUResult) {
+    this.setData({
+      SKUResult: SKUResult
+    })
+  },
+  saveSkuClasses(SkuClasses){
+    this.setData({
+      SkuClasses: SkuClasses
+    })
+  },
+  updateSkuClasses(SkuClasses,x,y){
+    let vm = this
+    let arr = SkuClasses
+    let tags = arr[x].SkuProperties
+    let leng = tags.length
+    let ison = tags[y].ison
+    for(var i =0;i<leng;i++){
+      let item = tags[i]
+      if(i==y){
+         item.ison = !ison
+      }else{
+        item.ison = false
+      }
+    }
+
+    arr[x].SkuProperties = tags
+    return SkuClasses
+  },
+  getSelect(SkuClasses){
+    let vm = this
+    let arr = SkuClasses
+    let newArr = []
+    let leng = arr.length
+
+    for(var i = 0;i<leng;i++){
+      let item = arr[i].SkuProperties
+      let newItem = vm.getSelectTags(item)
+      if(newItem.length){
+        newArr.push(newItem)
+      }
+      
+    }
+
+    return newArr
+
+  },
+  getSelectTags(tags){
+    let arr = tags
+    let leng = arr.length
+    let id = ''
+
+   
+    for(var i=0;i<leng;i++){
+      let item = arr[i]
+     
+      if(item.ison){
+       
+        id = item.PropId
+      }
+
+    }
+ 
+    return id
+
+  },
   skuClick(event) {
     let vm = this
-    let pid = vm.evevt(event, 'id')
-    console.log(pid)
-  },
-  //把组合的key放入结果集SKUResult
-  add2SKUResult(combArrItem, sku) {
-    var key = combArrItem.join(";");
-    if (SKUResult[key]) { //SKU信息key属性·
-      SKUResult[key].count += sku.Quantity;
-      SKUResult[key].prices.push(sku.Price);
-    } else {
-      SKUResult[key] = {
-        count: sku.Quantity,
-        prices: [sku.Price]
-      };
-    }
-  },
-  //初始化得到结果集
-  initSKU(data) {
-    var i, j, skuKeys = getObjKeys(data);
-    for (i = 0; i < skuKeys.length; i++) {
-      var skuKey = skuKeys[i]; //一条SKU信息key
-      var sku = data[skuKey]; //一条SKU信息value
-      var skuKeyAttrs = skuKey.split(";"); //SKU信息key属性值数组
-      skuKeyAttrs.sort(function (value1, value2) {
-        return parseInt(value1) - parseInt(value2);
-      });
+    let pid = api.event(event, 'id')
+    let x = api.event(event, 'x')
+    let y = api.event(event, 'y')
+    let SkuClasses = vm.data.SkuClasses
+    console.log(x)
+    console.log(y)
+ 
+    let newSkuClasses = vm.updateSkuClasses(SkuClasses,x,y)
+    vm.saveSkuClasses(newSkuClasses)
 
-      //对每个SKU信息key属性值进行拆分组合
-      var combArr = combInArray(skuKeyAttrs);
-      for (j = 0; j < combArr.length; j++) {
-        add2SKUResult(combArr[j], sku);
-      }
-
-      //结果集接放入SKUResult
-      SKUResult[skuKeyAttrs.join(";")] = {
-        count: sku.Quantity,
-        prices: [sku.Price]
-      }
-    }
-  },
-  evevt(event, key) {
-    return event.currentTarget.dataset[key]
+    let sellA = vm.getSelect(newSkuClasses)
+    let selObj = sellA.join(";")
+    let tre = vm.data.SKUResult[selObj]
+    console.log(tre)
+    console.log(selObj)
+ 
   },
   init() {
     let vm = this
     let skus = vm.data.Skus
-    var indata = SkusObj(skus)
-
-    initSKU(indata)
+    let indata = api.SkusObj(skus)
+    let SKUResult = {}
+    SKUResult = api.initSKU(SKUResult,indata)
+    vm.saveSKUResult(SKUResult)
+    let newC = vm.processSkuClasses(vm.data.SkuClasses)
+    console.log(newC)
+    vm.saveSkuClasses(newC)
   },
   onLoad: function (options) {
     // 页面初始化 options为页面跳转所带来的参数
+    this.init()
   },
   onReady: function () {
     // 页面渲染完成
