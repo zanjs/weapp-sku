@@ -1,5 +1,13 @@
-<view class="container">
-  <view class="textContainer">
-    <text class="textStyle">{{text}}</text>
-  </view>
+<view class="">
+  <block wx:for="{{SkuClasses}}" wx:key="index" >
+      <view class="ptitle">
+        {{item.TypeName}} {{index}}
+        <view class="skus-wrap">
+          <block wx:for="{{item.SkuProperties}}" wx:for-item="y" wx:key="PropId"  wx:for-index="idy">
+              <button data-id="{{y.PropId}}" bindtap="skuClick">{{y.PropertieName}}</button>
+          </block>
+        </view>
+      </view>
+  </block>
+
 </view>
